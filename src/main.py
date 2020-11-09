@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
+from services import Publisher
 
 # Window
 HEIGHT = 600
@@ -124,31 +125,35 @@ class Watcher(BaseComponent):
         else:
             self.screen_idx += direction
 
-    def handle_event(self):
-        key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE]:
-            self.draw(self.summary)
-        elif key[pygame.K_LEFT]:
+    def handle_event(self, event):
+        if event.key == pygame.K_SPACE:
+            self.draw()
+        elif event.key == pygame.K_LEFT:
             self._move_carousel(-1)
-        elif key[pygame.K_RIGHT]:
+        elif event.key == pygame.K_RIGHT:
             self._move_carousel(1)
 
 
 def main():
     pygame.init()
     clock = pygame.time.Clock()
-    game = Watcher()
+    watcher = Watcher()
+
+    pub = Publisher()
+    pub.register(watcher.handle_event)
 
     while True:
         event = pygame.event.poll()
         if handle_quit(event):
             break
 
+        if event.type == pygame.KEYDOWN:
+            pub.dispatch(event)
+
         screen.fill(BLACK)
-        game.draw()
-        game.handle_event()
+        watcher.draw()
         pygame.display.update()
-        clock.tick(game.speed)
+        clock.tick(watcher.speed)
 
     pygame.display.quit()
     pygame.quit()
