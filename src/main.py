@@ -107,6 +107,7 @@ class Watcher(BaseComponent):
             NetworkDetails(),
         )
         self.summary = (Summary(),)
+        self.is_summary_open = False
 
         self.screen_idx = None
 
@@ -114,9 +115,19 @@ class Watcher(BaseComponent):
         if not self.screen_idx:
             self.screen_idx = 0
 
-        self.screens[self.screen_idx].draw()
+        if self.is_summary_open:
+            self.summary[0].draw()
+        else:
+            self.screens[self.screen_idx].draw()
+
+    def _handle_summary(self):
+        if self.is_summary_open:
+            self.is_summary_open = False
+        else:
+            self.is_summary_open = True
 
     def _move_carousel(self, direction):
+        self.is_summary_open = False
         screens_pos = len(self.screens) - 1
         if self.screen_idx == 0 and direction < 0:
             self.screen_idx = screens_pos
@@ -127,7 +138,7 @@ class Watcher(BaseComponent):
 
     def handle_event(self, event):
         if event.key == pygame.K_SPACE:
-            self.draw()
+            self._handle_summary()
         elif event.key == pygame.K_LEFT:
             self._move_carousel(-1)
         elif event.key == pygame.K_RIGHT:
