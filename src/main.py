@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
-from services import CPUService, Publisher
+from services import CPUService, NetworkService, Publisher
 
 # Window
 HEIGHT = 600
@@ -99,7 +99,7 @@ class CPUDetails(BaseScreen):
             ("max frequency", self.cpu_service.max_frequency, "Hz"),
             ("frequency", self.cpu_service.current_frequency, "Hz"),
         ]
-        super(CPUDetails, self).draw_details(details)
+        super().draw_details(details)
 
     def draw(self, *args, **kwargs):
         self.draw_details()
@@ -123,7 +123,18 @@ class DiskDetails(BaseScreen):
 class NetworkDetails(BaseScreen):
     title = "Network"
 
+    def __init__(self, network_service=None):
+        self.network_service = network_service or NetworkService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        details = [
+            ("IP", self.network_service.ip, None),
+        ]
+        super().draw_details(details)
+
     def draw(self, *args, **kwargs):
+        self.draw_details()
         super().draw(*args, **kwargs)
 
 

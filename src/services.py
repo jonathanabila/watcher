@@ -60,3 +60,13 @@ class CPUService:
     @property
     def usage_per_cpu(self):
         return psutil.cpu_percent(percpu=True)
+
+
+class NetworkService:
+    def __init__(self):
+        self.info = psutil.net_if_addrs()
+
+    @property
+    def ip(self):
+        # TODO: make network interface dynamic
+        return self.info["enp34s0"][0].address
