@@ -96,10 +96,13 @@ class CPUDetails(BaseScreen):
             ("bits", self.cpu_service.bits, None),
             ("cores", self.cpu_service.count, None),
             ("logical cores", self.cpu_service.logical_count, None),
-            ("max frequency", self.cpu_service.max_frequency, "Hz"),
-            ("frequency", self.cpu_service.current_frequency, "Hz"),
+            ("max frequency", self.cpu_service.max_frequency, "MHz"),
+            ("frequency", self.cpu_service.current_frequency, "MHz"),
         ]
         super().draw_details(details)
+
+    def draw_usage(self):
+        pass
 
     def draw(self, *args, **kwargs):
         self.draw_details()
