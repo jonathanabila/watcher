@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
-from services import Publisher
+from services import CPUService, Publisher
 
 # Window
 HEIGHT = 600
@@ -17,7 +17,7 @@ FONT_SIZE = 13
 FONT_STYLE = "freesansbold.ttf"
 
 # Game Speed
-FPS = 144
+FPS = 30
 HITS_TO_INCREASE_SPEED = 10
 
 # Colors
@@ -36,9 +36,22 @@ class BaseComponent(ABC):
         pass
 
 
+class Text(BaseComponent):
+    def __init__(self):
+        self.font = pygame.font.Font(FONT_STYLE, FONT_SIZE)
+
+    def draw(self, title, position, *args, **kwargs):
+        text = self.font.render(title, True, WHITE)
+        screen.blit(text, position)
+        return text.get_rect()
+
+
 class BaseScreen(BaseComponent, ABC):
     def __init__(self):
         self.font = pygame.font.Font(FONT_STYLE, FONT_SIZE)
+
+        self.spacing = 20
+        self.start_position = 35
 
     @property
     def title(self):
@@ -56,6 +69,15 @@ class BaseScreen(BaseComponent, ABC):
     def _draw_frame(self):
         pass
 
+    def draw_details(self, details=None, *args, **kwargs):
+        for idx, detail in enumerate(details):
+            title, value, unit = detail
+
+            position = MARGIN_X, MARGIN_Y + self.start_position + idx * self.spacing
+
+            unit = "" if not unit else unit
+            Text().draw(f"{title.title()}: {value} {unit}", position)
+
     def draw(self, *args, **kwargs):
         self._draw_text()
 
@@ -63,7 +85,24 @@ class BaseScreen(BaseComponent, ABC):
 class CPUDetails(BaseScreen):
     title = "CPU"
 
+    def __init__(self, cpu_service=None):
+        self.cpu_service = cpu_service or CPUService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        details = [
+            ("name", self.cpu_service.brand, None),
+            ("architecture", self.cpu_service.arch, None),
+            ("bits", self.cpu_service.bits, None),
+            ("cores", self.cpu_service.count, None),
+            ("logical cores", self.cpu_service.logical_count, None),
+            ("max frequency", self.cpu_service.max_frequency, "Hz"),
+            ("frequency", self.cpu_service.current_frequency, "Hz"),
+        ]
+        super(CPUDetails, self).draw_details(details)
+
     def draw(self, *args, **kwargs):
+        self.draw_details()
         super().draw(*args, **kwargs)
 
 
