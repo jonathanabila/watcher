@@ -199,6 +199,8 @@ class Watcher(BaseComponent):
 
 
 def main():
+    is_running = True
+
     pygame.init()
     clock = pygame.time.Clock()
     watcher = Watcher()
@@ -206,13 +208,15 @@ def main():
     pub = Publisher()
     pub.register(watcher.handle_event)
 
-    while True:
-        event = pygame.event.poll()
-        if handle_quit(event):
-            break
+    while is_running:
+        events = pygame.event.get()
 
-        if event.type == pygame.KEYDOWN:
-            pub.dispatch(event)
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                pub.dispatch(event)
+
+            if handle_quit(event):
+                is_running = False
 
         screen.fill(BLACK)
         watcher.draw()
