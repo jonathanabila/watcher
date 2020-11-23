@@ -47,12 +47,33 @@ class Text(BaseComponent):
         return text.get_rect()
 
 
+class Rect(BaseComponent):
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
+
+    def draw(self, color):
+        pygame.draw.rect(screen, color, self.rect)
+
+
+class UsageBar(BaseComponent):
+    SPACING = 20
+
+    def draw(self, percentage, y_start, width, height):
+        x = MARGIN_X
+        y_start += self.SPACING  # Spacing between components
+
+        Rect(x, y_start, width, height).draw(BLUE)
+        Rect(x, y_start, width * percentage, height).draw(RED)
+
+
 class BaseScreen(BaseComponent, ABC):
     def __init__(self):
         self.font = pygame.font.Font(FONT_STYLE, FONT_SIZE)
 
         self.spacing = 20
         self.start_position = 35
+
+        self.bar_height = 50
 
     @property
     def title(self):
@@ -63,6 +84,7 @@ class BaseScreen(BaseComponent, ABC):
         return MARGIN_X, MARGIN_Y
 
     def _draw_text(self):
+        # TODO: use Text class
         text = self.font.render(self.title, True, WHITE)
         x, y = self._get_text_center()
         screen.blit(text, (x, y))
@@ -70,6 +92,7 @@ class BaseScreen(BaseComponent, ABC):
     def _draw_frame(self):
         pass
 
+    @abstractmethod
     def draw_details(self, details=None, *args, **kwargs):
         for idx, detail in enumerate(details):
             title, value, unit = detail
@@ -79,10 +102,23 @@ class BaseScreen(BaseComponent, ABC):
             unit = "" if not unit else unit
             Text().draw(f"{title.title()}: {value} {unit}", position)
 
+    @abstractmethod
+    def draw_usage(self, usage=None, y_start=None):
+        # Moves a little further from the details
+        y_start += 40
+
+        Text().draw(f"{self.title} usage:", (MARGIN_X, y_start))
+
+        width = WIDTH - 2 * MARGIN_X
+        height = self.bar_height
+
+        UsageBar().draw(usage, y_start, width, height)
+
     def draw(self, *args, **kwargs):
         self._draw_text()
 
         self.draw_details()
+        self.draw_usage()
 
 
 class CPUDetails(BaseScreen):
@@ -91,6 +127,9 @@ class CPUDetails(BaseScreen):
     def __init__(self, cpu_service=None):
         self.cpu_service = cpu_service or CPUService()
         super().__init__()
+
+    def draw_usage(self, usage=None, position=None, height=None):
+        pass
 
     def draw_details(self, details=None, *args, **kwargs):
         details = [
@@ -104,9 +143,6 @@ class CPUDetails(BaseScreen):
         ]
         super().draw_details(details)
 
-    def draw_usage(self):
-        pass
-
     def draw(self, *args, **kwargs):
         super().draw(*args, **kwargs)
 
@@ -117,6 +153,12 @@ class MemoryDetails(BaseScreen):
     def __init__(self, memory_service=None):
         self.memory_service = memory_service or MemoryService()
         super().__init__()
+
+    def draw_usage(self, usage=None, position=None, height=None):
+        usage = self.memory_service.usage()
+
+        y_start = 80
+        super().draw_usage(usage, y_start)
 
     def draw_details(self, details=None, *args, **kwargs):
         details = [
@@ -137,6 +179,12 @@ class DiskDetails(BaseScreen):
         self.disk_service = disk_service or DiskService()
         super().__init__()
 
+    def draw_usage(self, usage=None, position=None, height=None):
+        usage = self.disk_service.usage()
+
+        y_start = 80
+        super().draw_usage(usage, y_start)
+
     def draw_details(self, details=None, *args, **kwargs):
         details = [
             ("Total", self.disk_service.total(pretty=True), "Gb"),
@@ -156,6 +204,9 @@ class NetworkDetails(BaseScreen):
         self.network_service = network_service or NetworkService()
         super().__init__()
 
+    def draw_usage(self, usage=None, position=None, height=None):
+        pass
+
     def draw_details(self, details=None, *args, **kwargs):
         details = [
             ("IP", self.network_service.ip, None),
@@ -169,6 +220,12 @@ class NetworkDetails(BaseScreen):
 
 class Summary(BaseScreen):
     title = "Summary"
+
+    def draw_usage(self, usage=None, position=None, height=None):
+        pass
+
+    def draw_details(self, details=None, *args, **kwargs):
+        pass
 
     def draw(self, *args, **kwargs):
         super().draw(*args, **kwargs)
