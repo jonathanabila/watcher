@@ -70,3 +70,45 @@ class NetworkService:
     def ip(self):
         # TODO: make network interface dynamic
         return self.info["enp34s0"][0].address
+
+
+class MemoryService:
+    def __init__(self):
+        self.info = psutil.virtual_memory
+
+    @staticmethod
+    def _prettify(value):
+        return round(value / (1024 * 1024 * 1024), 2)
+
+    def total(self, pretty=False):
+        return self.info().total if not pretty else self._prettify(self.info().total)
+
+    def available(self, pretty=False):
+        return (
+            self.info().available
+            if not pretty
+            else self._prettify(self.info().available)
+        )
+
+    def usage(self, pretty=False):
+        percentage = (self.total() - self.available()) / self.total()
+        return percentage if not pretty else round(percentage, 2) * 100
+
+
+class DiskService:
+    def __init__(self):
+        self.info = psutil.disk_usage(".")
+
+    @staticmethod
+    def _prettify(value):
+        return round(value / (1024 * 1024 * 1024), 2)
+
+    def total(self, pretty=False):
+        return self.info.total if not pretty else self._prettify(self.info.total)
+
+    def available(self, pretty=False):
+        return self.info.free if not pretty else self._prettify(self.info.free)
+
+    def usage(self, pretty=False):
+        percentage = self.info.percent / 100
+        return percentage if not pretty else round(percentage * 100, 2)

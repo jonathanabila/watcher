@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
-from services import CPUService, NetworkService, Publisher
+from services import CPUService, DiskService, MemoryService, NetworkService, Publisher
 
 # Window
 HEIGHT = 600
@@ -25,6 +25,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Watcher")
@@ -81,6 +82,8 @@ class BaseScreen(BaseComponent, ABC):
     def draw(self, *args, **kwargs):
         self._draw_text()
 
+        self.draw_details()
+
 
 class CPUDetails(BaseScreen):
     title = "CPU"
@@ -105,12 +108,23 @@ class CPUDetails(BaseScreen):
         pass
 
     def draw(self, *args, **kwargs):
-        self.draw_details()
         super().draw(*args, **kwargs)
 
 
 class MemoryDetails(BaseScreen):
     title = "Memory"
+
+    def __init__(self, memory_service=None):
+        self.memory_service = memory_service or MemoryService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        details = [
+            ("Total", self.memory_service.total(pretty=True), "Gb"),
+            ("Available", self.memory_service.available(pretty=True), "Gb"),
+            ("Usage", self.memory_service.usage(pretty=True), "%"),
+        ]
+        super().draw_details(details)
 
     def draw(self, *args, **kwargs):
         super().draw(*args, **kwargs)
@@ -118,6 +132,18 @@ class MemoryDetails(BaseScreen):
 
 class DiskDetails(BaseScreen):
     title = "Disk"
+
+    def __init__(self, disk_service=None):
+        self.disk_service = disk_service or DiskService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        details = [
+            ("Total", self.disk_service.total(pretty=True), "Gb"),
+            ("Available", self.disk_service.available(pretty=True), "Gb"),
+            ("Usage", self.disk_service.usage(pretty=True), "%"),
+        ]
+        super().draw_details(details)
 
     def draw(self, *args, **kwargs):
         super().draw(*args, **kwargs)
