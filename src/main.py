@@ -177,7 +177,7 @@ class MemoryDetails(BaseScreen):
     def draw_usage(self, usage=None, position=None, height=None):
         usage = self.memory_service.usage()
 
-        y_start = 80
+        y_start = 80 if not position else position
         super().draw_usage(usage, y_start)
 
     def draw_details(self, details=None, *args, **kwargs):
@@ -202,7 +202,7 @@ class DiskDetails(BaseScreen):
     def draw_usage(self, usage=None, position=None, height=None):
         usage = self.disk_service.usage()
 
-        y_start = 80
+        y_start = 80 if not position else position
         super().draw_usage(usage, y_start)
 
     def draw_details(self, details=None, *args, **kwargs):
@@ -241,8 +241,16 @@ class NetworkDetails(BaseScreen):
 class Summary(BaseScreen):
     title = "Summary"
 
+    def __init__(self):
+        self.disk_details = DiskDetails()
+        self.cpu_details = CPUDetails()
+        self.memory_details = MemoryDetails()
+        super().__init__()
+
     def draw_usage(self, usage=None, position=None, height=None):
-        pass
+        self.cpu_details.draw_details()
+        self.disk_details.draw_usage(position=150)
+        self.memory_details.draw_usage(position=225)
 
     def draw_details(self, details=None, *args, **kwargs):
         pass
