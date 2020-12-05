@@ -59,7 +59,7 @@ class CPUService:
 
     @property
     def usage_per_cpu(self):
-        return psutil.cpu_percent(percpu=True)
+        return [round(i / 100, 2) for i in psutil.cpu_percent(percpu=True)]
 
 
 class NetworkService:

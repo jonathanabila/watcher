@@ -17,7 +17,7 @@ FONT_SIZE = 13
 FONT_STYLE = "freesansbold.ttf"
 
 # Game Speed
-FPS = 30
+FPS = 10
 HITS_TO_INCREASE_SPEED = 10
 
 # Colors
@@ -66,6 +66,14 @@ class UsageBar(BaseComponent):
         Rect(x, y_start, width * percentage, height).draw(RED)
 
 
+class VerticalUsageBar(BaseComponent):
+    def draw(self, percentage, position, width, height):
+        x, y = position
+
+        Rect(x, y, width, height).draw(BLUE)
+        Rect(x, y + height - height * percentage, width, height * percentage).draw(RED)
+
+
 class BaseScreen(BaseComponent, ABC):
     def __init__(self):
         self.font = pygame.font.Font(FONT_STYLE, FONT_SIZE)
@@ -103,11 +111,11 @@ class BaseScreen(BaseComponent, ABC):
             Text().draw(f"{title.title()}: {value} {unit}", position)
 
     @abstractmethod
-    def draw_usage(self, usage=None, y_start=None):
+    def draw_usage(self, usage=None, y_start=None, title=None):
         # Moves a little further from the details
         y_start += 40
 
-        Text().draw(f"{self.title} usage:", (MARGIN_X, y_start))
+        Text().draw(f"{self.title if not title else title} usage:", (MARGIN_X, y_start))
 
         width = WIDTH - 2 * MARGIN_X
         height = self.bar_height
@@ -129,7 +137,19 @@ class CPUDetails(BaseScreen):
         super().__init__()
 
     def draw_usage(self, usage=None, position=None, height=None):
-        pass
+        right_margin = 15  # margin between bars
+        y = 200  # Start point on y
+
+        usages = self.cpu_service.usage_per_cpu
+
+        width = ((WIDTH - 2 * MARGIN_X) / len(usages)) - right_margin
+        height = HEIGHT - 20 - y - MARGIN_Y
+
+        for idx, usage in enumerate(usages):
+            x = MARGIN_X + right_margin / 2 + idx * (right_margin + width)
+
+            position = x, y
+            VerticalUsageBar().draw(usage, position, width, height)
 
     def draw_details(self, details=None, *args, **kwargs):
         details = [
