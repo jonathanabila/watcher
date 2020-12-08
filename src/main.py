@@ -3,7 +3,16 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
-from services import CPUService, DiskService, MemoryService, NetworkService, Publisher
+from services import (
+    CPUService,
+    DiskService,
+    MemoryService,
+    NetworkService,
+    ProcessService,
+    Publisher,
+    SystemService,
+    TableService,
+)
 
 # Window
 HEIGHT = 600
@@ -238,6 +247,40 @@ class NetworkDetails(BaseScreen):
         super().draw(*args, **kwargs)
 
 
+class ProcessDetails(BaseScreen):
+    title = "Process"
+
+    def __init__(self, process_service=None, table_service=None):
+        self.process_service = process_service or ProcessService()
+        self.table_service = table_service or TableService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        Text().draw("Output on the terminal.", (MARGIN_X, 40))
+        pids = self.process_service.pids()
+        self.table_service.draw(pids)
+
+    def draw_usage(self, usage=None, y_start=None, title=None):
+        pass
+
+
+class SystemDetails(BaseScreen):
+    title = "System"
+
+    def __init__(self, system_service=None, table_service=None):
+        self.system_service = system_service or SystemService()
+        self.table_service = table_service or TableService()
+        super().__init__()
+
+    def draw_details(self, details=None, *args, **kwargs):
+        Text().draw("Output on the terminal.", (MARGIN_X, 40))
+        dirs = self.system_service.dirs()
+        self.table_service.draw(dirs)
+
+    def draw_usage(self, usage=None, y_start=None, title=None):
+        pass
+
+
 class Summary(BaseScreen):
     title = "Summary"
 
@@ -269,6 +312,8 @@ class Watcher(BaseComponent):
             MemoryDetails(),
             DiskDetails(),
             NetworkDetails(),
+            ProcessDetails(),
+            SystemDetails(),
         )
         self.summary = (Summary(),)
         self.is_summary_open = False

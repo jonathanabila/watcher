@@ -1,5 +1,8 @@
+import os
+
 import cpuinfo
 import psutil
+from texttable import Texttable
 
 
 class Publisher:
@@ -112,3 +115,50 @@ class DiskService:
     def usage(self, pretty=False):
         percentage = self.info.percent / 100
         return percentage if not pretty else round(percentage * 100, 2)
+
+
+class ProcessService:
+    def __init__(self):
+        self.info = psutil.pids()
+
+    def pids(self):
+        header = ["pid", "threads", "name", "memory", "cpu"]
+
+        pids = []
+        for pid in self.info:
+            try:
+                p = psutil.Process(pid)
+            except psutil.NoSuchProcess:
+                continue
+
+            pids.append(
+                [
+                    pid,
+                    p.num_threads(),
+                    p.name(),
+                    round(p.memory_percent(), 1),
+                    p.cpu_percent(),
+                ]
+            )
+
+        return [header] + pids
+
+
+class SystemService:
+    @staticmethod
+    def dirs():
+        header = ["name", "type"]
+        files = [
+            [f, "folder" if os.path.isdir(f"../{f}") else "file"]
+            for f in os.listdir("..")
+        ]
+        return [header] + files
+
+
+class TableService:
+    @staticmethod
+    def draw(sentences):
+        t = Texttable()
+        t.add_rows(sentences[:10])
+        os.system("cls") if "nt" in os.name else os.system("clear")
+        print(t.draw())
