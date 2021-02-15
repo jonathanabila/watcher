@@ -1,8 +1,12 @@
 import os
+import sched
+import time
 
 import cpuinfo
 import psutil
 from texttable import Texttable
+
+from helpers import scheduler_timer
 
 
 class Publisher:
@@ -145,14 +149,31 @@ class ProcessService:
 
 
 class SystemService:
-    @staticmethod
-    def dirs():
+    def __init__(self):
+        self.s = sched.scheduler(time.time, time.sleep)
+        self.dirs_folder = []
+
+    def _dirs(self):
         header = ["name", "type"]
         files = [
             [f, "folder" if os.path.isdir(f"../{f}") else "file"]
             for f in os.listdir("..")
         ]
-        return [header] + files
+        self.dirs_folder = [header] + files
+
+    @scheduler_timer
+    def _sched(self):
+        self.s.enter(5, 1, self._dirs)
+        # time.sleep(10)
+        self.s.run()
+
+    def dirs(self):
+        if not self.dirs_folder:
+            self._dirs()
+            return self.dirs_folder
+
+        self._sched()
+        return self.dirs_folder
 
 
 class TableService:
