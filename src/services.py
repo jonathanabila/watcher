@@ -6,7 +6,7 @@ import cpuinfo
 import psutil
 from texttable import Texttable
 
-from helpers import scheduler_timer
+from helpers import clean_terminal, scheduler_timer
 
 
 class Publisher:
@@ -180,7 +180,8 @@ class SystemService:
 class TableService:
     @staticmethod
     def draw(sentences):
-        t = Texttable()
-        t.add_rows(sentences[:10])
-        os.system("cls") if "nt" in os.name else os.system("clear")
-        print(t.draw())
+        if len(sentences) > 1:
+            t = Texttable()
+            t.add_rows(sentences[:10])
+            clean_terminal()
+            print(t.draw())

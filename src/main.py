@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
-from helpers import handle_quit
+from helpers import clean_terminal, handle_quit
 from scanner import Scanner
 from services import (
     CPUService,
@@ -251,7 +251,8 @@ class NetworkDetails(BaseScreen):
         ]
         super().draw_details(details)
 
-        subnet_ips = self.scanner_service.map_network(internal_ip)  # noqa: F841
+        subnet_hosts = self.scanner_service.map_network(internal_ip)  # noqa: F841
+        self.table_service.draw(subnet_hosts)
 
     def draw(self, *args, **kwargs):
         self.draw_details()
@@ -319,7 +320,6 @@ class Watcher(BaseComponent):
         self.speed = FPS
 
         self.screens = (
-            NetworkDetails(),
             CPUDetails(),
             MemoryDetails(),
             DiskDetails(),
@@ -357,6 +357,8 @@ class Watcher(BaseComponent):
         else:
             self.screen_idx += direction
 
+        clean_terminal()
+
     def handle_event(self, event):
         if event.key == pygame.K_SPACE:
             self._handle_summary()
@@ -375,6 +377,8 @@ def main():
 
     pub = Publisher()
     pub.register(watcher.handle_event)
+
+    clean_terminal()
 
     while is_running:
         events = pygame.event.get()

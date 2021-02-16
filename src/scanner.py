@@ -7,6 +7,8 @@ from helpers import threader
 
 POOL_SIZE = 255
 INTERVAL_UPDATE = 100 * 20
+PORTS = "22,80,443"
+
 DEVNULL = open(os.devnull, "w")
 
 
@@ -14,6 +16,8 @@ class Scanner:
     def __init__(self):
         self.nm = nmap.PortScanner()
         self.counter = 0
+
+        self.scanned = []
 
     @staticmethod
     def get_base_ip(raw_host):
@@ -53,12 +57,31 @@ class Scanner:
 
         return threader(self._pinger, ips, pool_size)
 
-    def map_network(self, raw_host, pool_size=POOL_SIZE):
-        ip_list = list()
-        if self.counter == 0:
-            pass
-        elif self.counter % INTERVAL_UPDATE == 0 or self.counter == 1:
-            ip_list = self._map_network(raw_host, pool_size)
+    def _map_network_ports(self, host):
+        result = []
 
+        self.nm.scan(host, ports=PORTS)
+        try:
+            for protocol in self.nm[host].all_protocols():
+                for port in self.nm[host][protocol].keys():
+                    state = self.nm[host][protocol][port]["state"]
+                    result.append((port, state))
+        except KeyError:
+            pass
+
+        return result
+
+    def map_network(self, raw_host, pool_size=POOL_SIZE):
+        header = ["host", "port", "state"]
         self.counter += 1
-        return ip_list
+
+        if self.counter == 0 or self.counter < 10:
+            return self.scanned
+        elif self.counter % INTERVAL_UPDATE == 0 or self.counter == 10:
+            hosts = self._map_network(raw_host, pool_size)
+            for host in hosts:
+                ports = self._map_network_ports(host)
+                for port in ports:
+                    self.scanned.append([host, port[0], port[1]])
+
+        return [header] + self.scanned

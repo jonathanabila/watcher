@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 import time
 from functools import wraps
 
@@ -59,3 +60,7 @@ def threader(target, jobs, pool_size):
         results_list.append(result)
 
     return results_list
+
+
+def clean_terminal():
+    os.system("cls") if "nt" in os.name else os.system("clear")
