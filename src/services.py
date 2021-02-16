@@ -75,7 +75,9 @@ class NetworkService:
 
     @property
     def ip(self):
-        return self.info.get("enp34s0", list(self.info.keys())[0])[0].address
+        return (self.info.get("enp34s0") or self.info.get(list(self.info.keys())[1]))[
+            0
+        ].address
 
 
 class MemoryService:
