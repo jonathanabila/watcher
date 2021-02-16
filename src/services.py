@@ -75,8 +75,7 @@ class NetworkService:
 
     @property
     def ip(self):
-        # TODO: make network interface dynamic
-        return self.info["enp34s0"][0].address
+        return self.info.get("enp34s0", list(self.info.keys())[0])[0].address
 
 
 class MemoryService:

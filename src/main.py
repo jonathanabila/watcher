@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import pygame
 
 from helpers import handle_quit
+from scanner import Scanner
 from services import (
     CPUService,
     DiskService,
@@ -35,6 +36,8 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+
+EMPTY_LINES = (("", None, None),) * 2
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Watcher")
@@ -117,7 +120,8 @@ class BaseScreen(BaseComponent, ABC):
             position = MARGIN_X, MARGIN_Y + self.start_position + idx * self.spacing
 
             unit = "" if not unit else unit
-            Text().draw(f"{title.title()}: {value} {unit}", position)
+            line = title.title() if not value else f"{title.title()}: {value} {unit}"
+            Text().draw(line, position)
 
     @abstractmethod
     def draw_usage(self, usage=None, y_start=None, title=None):
@@ -229,18 +233,25 @@ class DiskDetails(BaseScreen):
 class NetworkDetails(BaseScreen):
     title = "Network"
 
-    def __init__(self, network_service=None):
+    def __init__(self, network_service=None, scanner_service=None, table_service=None):
         self.network_service = network_service or NetworkService()
+        self.scanner_service = scanner_service or Scanner()
+        self.table_service = table_service or TableService()
         super().__init__()
 
     def draw_usage(self, usage=None, position=None, height=None):
         pass
 
     def draw_details(self, details=None, *args, **kwargs):
+        internal_ip = self.network_service.ip
         details = [
-            ("IP", self.network_service.ip, None),
+            ("IP", internal_ip, None),
+            *EMPTY_LINES,
+            ("More details on the terminal", "", None),
         ]
         super().draw_details(details)
+
+        subnet_ips = self.scanner_service.map_network(internal_ip)  # noqa: F841
 
     def draw(self, *args, **kwargs):
         self.draw_details()
