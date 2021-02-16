@@ -3,6 +3,7 @@ import sched
 import time
 
 import cpuinfo
+import netifaces
 import psutil
 from texttable import Texttable
 
@@ -72,12 +73,27 @@ class CPUService:
 class NetworkService:
     def __init__(self):
         self.info = psutil.net_if_addrs()
+        self.gateways = netifaces.gateways()
+
+    @property
+    def interface_name(self):
+        return list(self.info.keys())[1]
+
+    @property
+    def _interface(self):
+        return self.info.get(self.interface_name)[0]
 
     @property
     def ip(self):
-        return (self.info.get("enp34s0") or self.info.get(list(self.info.keys())[1]))[
-            0
-        ].address
+        return self._interface.address
+
+    @property
+    def gateway(self):
+        return list(self.gateways.get("default").values())[0][0]
+
+    @property
+    def sub_mask(self):
+        return self._interface.netmask
 
 
 class MemoryService:

@@ -245,7 +245,10 @@ class NetworkDetails(BaseScreen):
     def draw_details(self, details=None, *args, **kwargs):
         internal_ip = self.network_service.ip
         details = [
+            ("Interface", self.network_service.interface_name, None),
             ("IP", internal_ip, None),
+            ("Gateway", self.network_service.gateway, None),
+            ("SubMask", self.network_service.sub_mask, None),
             *EMPTY_LINES,
             ("More details on the terminal", "", None),
         ]
