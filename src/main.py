@@ -319,6 +319,7 @@ class Watcher(BaseComponent):
         self.speed = FPS
 
         self.screens = (
+            NetworkDetails(),
             CPUDetails(),
             MemoryDetails(),
             DiskDetails(),

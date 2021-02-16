@@ -1,3 +1,4 @@
+import multiprocessing
 import time
 from functools import wraps
 
@@ -28,3 +29,33 @@ def scheduler_timer(f):
         return result
 
     return wrap
+
+
+def threader(target, jobs, pool_size):
+    results_list = list()
+
+    jobs_queue = multiprocessing.Queue()
+    results_queue = multiprocessing.Queue()
+
+    pool = [
+        multiprocessing.Process(target=target, args=(jobs_queue, results_queue))
+        for _ in range(pool_size)
+    ]
+
+    for p in pool:
+        p.start()
+
+    for i in jobs:
+        jobs_queue.put(i)
+
+    for _ in pool:
+        jobs_queue.put(None)
+
+    for p in pool:
+        p.join()
+
+    while not results_queue.empty():
+        result = results_queue.get()
+        results_list.append(result)
+
+    return results_list

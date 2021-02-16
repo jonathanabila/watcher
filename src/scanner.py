@@ -1,8 +1,9 @@
-import multiprocessing
 import os
 import subprocess
 
 import nmap
+
+from helpers import threader
 
 POOL_SIZE = 255
 INTERVAL_UPDATE = 100 * 20
@@ -16,7 +17,7 @@ class Scanner:
 
     @staticmethod
     def get_base_ip(raw_host):
-        return ".".join(raw_host.split(".")[0:3]) + "."
+        return ".".join(raw_host.split(".")[0:3])
 
     @staticmethod
     def _build_ping():
@@ -48,33 +49,9 @@ class Scanner:
 
     def _map_network(self, raw_host, pool_size):
         base_ip = self.get_base_ip(raw_host)
-        ip_list = list()
+        ips = [f"{base_ip}.{i}" for i in range(255)]
 
-        jobs = multiprocessing.Queue()
-        results = multiprocessing.Queue()
-
-        pool = [
-            multiprocessing.Process(target=self._pinger, args=(jobs, results))
-            for _ in range(pool_size)
-        ]
-
-        for p in pool:
-            p.start()
-
-        for i in range(1, 255):
-            jobs.put(base_ip + "{0}".format(i))
-
-        for _ in pool:
-            jobs.put(None)
-
-        for p in pool:
-            p.join()
-
-        while not results.empty():
-            ip = results.get()
-            ip_list.append(ip)
-
-        return ip_list
+        return threader(self._pinger, ips, pool_size)
 
     def map_network(self, raw_host, pool_size=POOL_SIZE):
         ip_list = list()
