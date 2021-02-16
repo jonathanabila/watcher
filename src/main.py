@@ -6,6 +6,7 @@ from helpers import clean_terminal, handle_quit
 from scanner import Scanner
 from services import (
     CPUService,
+    DataUsageService,
     DiskService,
     MemoryService,
     NetworkService,
@@ -120,7 +121,9 @@ class BaseScreen(BaseComponent, ABC):
             position = MARGIN_X, MARGIN_Y + self.start_position + idx * self.spacing
 
             unit = "" if not unit else unit
-            line = title.title() if not value else f"{title.title()}: {value} {unit}"
+            line = (
+                title.title() if value is None else f"{title.title()}: {value} {unit}"
+            )
             Text().draw(line, position)
 
     @abstractmethod
@@ -230,6 +233,32 @@ class DiskDetails(BaseScreen):
         super().draw(*args, **kwargs)
 
 
+class DataUsageDetails(BaseScreen):
+    title = "Data Usage"
+
+    def __init__(self, data_usage_service=None, table_service=None):
+        self.dt_service = data_usage_service or DataUsageService()
+        self.table_service = table_service or TableService()
+        super().__init__()
+
+    def draw_usage(self, usage=None, y_start=None, title=None):
+        pass
+
+    def draw_details(self, details=None, *args, **kwargs):
+        details = [
+            ("Interface", self.dt_service.interface_name, None),
+            ("Data sent", self.dt_service.bytes_sent, "Gb"),
+            ("Data received", self.dt_service.bytes_recv, "Gb"),
+            ("Packages sent", self.dt_service.packets_sent, None),
+            ("Packages received", self.dt_service.packets_recv, None),
+            ("Dropin", self.dt_service.dropin, None),
+            ("Dropout", self.dt_service.dropout, None),
+            ("Errin", self.dt_service.errin, None),
+            ("Errout", self.dt_service.errout, None),
+        ]
+        super().draw_details(details)
+
+
 class NetworkDetails(BaseScreen):
     title = "Network"
 
@@ -323,6 +352,7 @@ class Watcher(BaseComponent):
         self.speed = FPS
 
         self.screens = (
+            DataUsageDetails(),
             CPUDetails(),
             MemoryDetails(),
             DiskDetails(),

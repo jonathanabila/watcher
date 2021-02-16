@@ -64,3 +64,10 @@ def threader(target, jobs, pool_size):
 
 def clean_terminal():
     os.system("cls") if "nt" in os.name else os.system("clear")
+
+
+def prettify(value):
+    """
+    bytes to mb
+    """
+    return round(value / (1024 * 1024 * 1024), 2)

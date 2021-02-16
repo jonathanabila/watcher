@@ -7,7 +7,7 @@ import netifaces
 import psutil
 from texttable import Texttable
 
-from helpers import clean_terminal, scheduler_timer
+from helpers import clean_terminal, prettify, scheduler_timer
 
 
 class Publisher:
@@ -70,6 +70,49 @@ class CPUService:
         return [round(i / 100, 2) for i in psutil.cpu_percent(percpu=True)]
 
 
+class DataUsageService:
+    def __init__(self):
+        self.network_service = NetworkService()
+
+        self.interface_name = self.network_service.interface_name
+        self._net = psutil.net_io_counters(pernic=True).get(self.interface_name)
+
+    def __getattr__(self, item):
+        return getattr(self, item, 0)
+
+    @property
+    def bytes_sent(self):
+        return prettify(self._net.bytes_sent)
+
+    @property
+    def bytes_recv(self):
+        return prettify(self._net.bytes_recv)
+
+    @property
+    def packets_recv(self):
+        return self._net.packets_recv
+
+    @property
+    def packets_sent(self):
+        return self._net.packets_sent
+
+    @property
+    def dropin(self):
+        return self._net.dropin
+
+    @property
+    def dropout(self):
+        return self._net.dropout
+
+    @property
+    def errin(self):
+        return self._net.errin
+
+    @property
+    def errout(self):
+        return self._net.errout
+
+
 class NetworkService:
     def __init__(self):
         self.info = psutil.net_if_addrs()
@@ -100,19 +143,11 @@ class MemoryService:
     def __init__(self):
         self.info = psutil.virtual_memory
 
-    @staticmethod
-    def _prettify(value):
-        return round(value / (1024 * 1024 * 1024), 2)
-
     def total(self, pretty=False):
-        return self.info().total if not pretty else self._prettify(self.info().total)
+        return self.info().total if not pretty else prettify(self.info().total)
 
     def available(self, pretty=False):
-        return (
-            self.info().available
-            if not pretty
-            else self._prettify(self.info().available)
-        )
+        return self.info().available if not pretty else prettify(self.info().available)
 
     def usage(self, pretty=False):
         percentage = (self.total() - self.available()) / self.total()
@@ -142,19 +177,26 @@ class ProcessService:
     def __init__(self):
         self.info = psutil.pids()
 
-    def pids(self):
-        header = ["pid", "threads", "name", "memory", "cpu"]
-
+    def get_pids(self):
         pids = []
         for pid in self.info:
             try:
                 p = psutil.Process(pid)
+                pids.append(p)
             except psutil.NoSuchProcess:
                 continue
+        return pids
 
+    def pids(self):
+        header = ["pid", "threads", "name", "memory", "cpu"]
+
+        raw_pids = self.get_pids()
+
+        pids = []
+        for p in raw_pids:
             pids.append(
                 [
-                    pid,
+                    p.pid,
                     p.num_threads(),
                     p.name(),
                     round(p.memory_percent(), 1),
