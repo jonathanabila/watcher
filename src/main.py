@@ -258,6 +258,9 @@ class DataUsageDetails(BaseScreen):
         ]
         super().draw_details(details)
 
+        pids_connections = self.dt_service.get_pids_connections()
+        self.table_service.draw(pids_connections)
+
 
 class NetworkDetails(BaseScreen):
     title = "Network"
@@ -352,12 +355,12 @@ class Watcher(BaseComponent):
         self.speed = FPS
 
         self.screens = (
-            DataUsageDetails(),
             CPUDetails(),
             MemoryDetails(),
             DiskDetails(),
             NetworkDetails(),
             ProcessDetails(),
+            DataUsageDetails(),
             SystemDetails(),
         )
         self.summary = (Summary(),)

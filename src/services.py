@@ -1,5 +1,6 @@
 import os
 import sched
+import socket
 import time
 
 import cpuinfo
@@ -77,8 +78,44 @@ class DataUsageService:
         self.interface_name = self.network_service.interface_name
         self._net = psutil.net_io_counters(pernic=True).get(self.interface_name)
 
+        self.process_service = ProcessService()
+
     def __getattr__(self, item):
         return getattr(self, item, 0)
+
+    @staticmethod
+    def get_type(v):
+        if v == socket.SOCK_STREAM:
+            return "TPC"
+        elif v == socket.SOCK_DGRAM:
+            return "UPD"
+        elif v == socket.SOCK_RAW:
+            return "IP"
+        else:
+            return "-"
+
+    @staticmethod
+    def get_family(v):
+        if v == socket.AF_INET:
+            return "IPv4"
+        elif v == socket.AF_INET6:
+            return "IPv6"
+        elif v == socket.AF_UNIX:
+            return "Unix"
+        else:
+            return "-"
+
+    @staticmethod
+    def get_address(v):
+        if hasattr(v, "ip"):
+            return v.ip
+        return None
+
+    @staticmethod
+    def get_port(v):
+        if hasattr(v, "port"):
+            return v.port
+        return None
 
     @property
     def bytes_sent(self):
@@ -111,6 +148,42 @@ class DataUsageService:
     @property
     def errout(self):
         return self._net.errout
+
+    def get_pids_connections(self):
+        header = [
+            "pid",
+            "type",
+            "family",
+            "status",
+            "local address",
+            "local port",
+            "remote address",
+            "remote port",
+        ]
+        pid_connections = []
+
+        pids = self.process_service.get_pids()
+        for pid in pids:
+            try:
+                conns = psutil.Process(pid.pid).connections()
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
+
+            for conn in conns:
+                pid_connections.append(
+                    [
+                        pid.pid,
+                        conn.type,
+                        self.get_family(conn.family),
+                        self.get_type(conn.status),
+                        self.get_address(conn.laddr),
+                        self.get_port(conn.laddr),
+                        self.get_address(conn.raddr),
+                        self.get_port(conn.raddr),
+                    ]
+                )
+
+        return [header] + pid_connections
 
 
 class NetworkService:
