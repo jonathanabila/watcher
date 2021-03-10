@@ -1,5 +1,6 @@
 import multiprocessing
 import os
+import pickle
 import time
 from functools import wraps
 
@@ -71,3 +72,33 @@ def prettify(value):
     bytes to mb
     """
     return round(value / (1024 * 1024 * 1024), 2)
+
+
+def encode_commands(message):
+    return pickle.dumps(message)
+
+
+def decode_message(raw_message):
+    commands = []
+    for command, args in pickle.loads(raw_message):
+        commands.append((command, args))
+
+    return commands
+
+
+def encode_message(raw_message):
+    return pickle.dumps(raw_message)
+
+
+def decode_response(raw_messages, commands):
+    results = []
+
+    messages = pickle.loads(raw_messages)
+    for raw_message, command in zip(messages, commands):
+        if isinstance(raw_message, str):
+            message = raw_message.decode()
+        else:
+            message = raw_message
+
+        results.append((command, message))
+    return results
