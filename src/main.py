@@ -331,10 +331,10 @@ class SystemDetails(BaseScreen):
 class Summary(BaseScreen):
     title = "Summary"
 
-    def __init__(self):
-        self.disk_details = DiskDetails()
-        self.cpu_details = CPUDetails()
-        self.memory_details = MemoryDetails()
+    def __init__(self, disk_details=None, cpu_details=None, memory_details=None):
+        self.disk_details = disk_details or DiskDetails()
+        self.cpu_details = cpu_details or CPUDetails()
+        self.memory_details = memory_details or MemoryDetails()
         super().__init__()
 
     def draw_usage(self, usage=None, position=None, height=None):
@@ -350,11 +350,11 @@ class Summary(BaseScreen):
 
 
 class Watcher(BaseComponent):
-    def __init__(self):
+    def __init__(self, screens=None, summary=None):
         # Settings
         self.speed = FPS
 
-        self.screens = (
+        self.screens = screens or (
             CPUDetails(),
             MemoryDetails(),
             DiskDetails(),
@@ -363,7 +363,7 @@ class Watcher(BaseComponent):
             DataUsageDetails(),
             SystemDetails(),
         )
-        self.summary = (Summary(),)
+        self.summary = summary or (Summary(),)
         self.is_summary_open = False
 
         self.screen_idx = None
@@ -404,12 +404,12 @@ class Watcher(BaseComponent):
             self._move_carousel(1)
 
 
-def main():
+def main(watcher=None):
     is_running = True
 
     pygame.init()
     clock = pygame.time.Clock()
-    watcher = Watcher()
+    watcher = watcher or Watcher()
 
     pub = Publisher()
     pub.register(watcher.handle_event)
