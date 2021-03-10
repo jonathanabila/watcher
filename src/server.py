@@ -1,4 +1,5 @@
 import socket
+from datetime import datetime
 
 from factories import CommandsFactory
 from helpers import decode_message, encode_message
@@ -25,4 +26,4 @@ if __name__ == "__main__":
 
             s.sendto(encode_message(answers), addr)
 
-        print("awaiting...")
+        print(f"awaiting - {datetime.now()}...")
