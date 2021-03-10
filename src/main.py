@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import pygame
 
+from client import get_details
 from helpers import clean_terminal, handle_quit
 from scanner import Scanner
 from services import (
@@ -15,6 +16,8 @@ from services import (
     SystemService,
     TableService,
 )
+
+SLEEP_INTERVAL = 0.5
 
 # Window
 HEIGHT = 600
@@ -404,12 +407,12 @@ class Watcher(BaseComponent):
             self._move_carousel(1)
 
 
-def main(watcher=None):
+def main():
     is_running = True
 
     pygame.init()
     clock = pygame.time.Clock()
-    watcher = watcher or Watcher()
+    watcher = Watcher()
 
     pub = Publisher()
     pub.register(watcher.handle_event)
@@ -435,5 +438,40 @@ def main(watcher=None):
     pygame.quit()
 
 
+def main_socket():
+    print("Starting client...")
+    while True:
+        is_running = True
+
+        pygame.init()
+        clock = pygame.time.Clock()
+
+        clean_terminal()
+
+        while is_running:
+            watcher = Watcher(screens=(CPUDetails(cpu_service=get_details()),))
+
+            pub = Publisher()
+            pub.register(watcher.handle_event)
+
+            events = pygame.event.get()
+
+            for event in events:
+                if event.type == pygame.KEYDOWN:
+                    pub.dispatch(event)
+
+                if handle_quit(event):
+                    is_running = False
+
+            screen.fill(BLACK)
+            watcher.draw()
+            pygame.display.update()
+            clock.tick(watcher.speed)
+
+        pygame.display.quit()
+        pygame.quit()
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    main_socket()
