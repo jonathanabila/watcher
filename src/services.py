@@ -214,17 +214,23 @@ class NetworkService:
 
 class MemoryService:
     def __init__(self):
-        self.info = psutil.virtual_memory
+        self.info = psutil.virtual_memory()
 
-    def total(self, pretty=False):
-        return self.info().total if not pretty else prettify(self.info().total)
+    @property
+    def total(self):
+        return prettify(self.info.total)
 
-    def available(self, pretty=False):
-        return self.info().available if not pretty else prettify(self.info().available)
+    @property
+    def available(self):
+        return prettify(self.info.available)
 
-    def usage(self, pretty=False):
-        percentage = (self.total() - self.available()) / self.total()
-        return percentage if not pretty else round(percentage, 2) * 100
+    @property
+    def usage(self):
+        return (self.total - self.available) / self.total
+
+    @property
+    def pretty_usage(self):
+        return round(self.usage, 2) * 100
 
 
 class DiskService:

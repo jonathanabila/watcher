@@ -193,16 +193,16 @@ class MemoryDetails(BaseScreen):
         super().__init__()
 
     def draw_usage(self, usage=None, position=None, height=None):
-        usage = self.memory_service.usage()
+        usage = self.memory_service.usage
 
         y_start = 80 if not position else position
         super().draw_usage(usage, y_start)
 
     def draw_details(self, details=None, *args, **kwargs):
         details = [
-            ("Total", self.memory_service.total(pretty=True), "Gb"),
-            ("Available", self.memory_service.available(pretty=True), "Gb"),
-            ("Usage", self.memory_service.usage(pretty=True), "%"),
+            ("Total", self.memory_service.total, "Gb"),
+            ("Available", self.memory_service.available, "Gb"),
+            ("Usage", self.memory_service.pretty_usage, "%"),
         ]
         super().draw_details(details)
 

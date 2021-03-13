@@ -19,7 +19,7 @@ class MemoryModel:
     usage: str
     total: str
     available: str
-    usage: str
+    pretty_usage: str
 
 
 @dataclass
