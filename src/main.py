@@ -276,6 +276,9 @@ class NetworkDetails(BaseScreen):
     def draw_usage(self, usage=None, position=None, height=None):
         pass
 
+    def get_map_network(self, internal_ip):
+        return self.scanner_service.map_network(internal_ip)
+
     def draw_details(self, details=None, *args, **kwargs):
         internal_ip = self.network_service.ip
         details = [
@@ -288,7 +291,7 @@ class NetworkDetails(BaseScreen):
         ]
         super().draw_details(details)
 
-        subnet_hosts = self.scanner_service.map_network(internal_ip)  # noqa: F841
+        subnet_hosts = self.get_map_network(internal_ip)
         self.table_service.draw(subnet_hosts)
 
     def draw(self, *args, **kwargs):

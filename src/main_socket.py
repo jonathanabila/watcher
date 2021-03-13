@@ -50,12 +50,29 @@ class SocketDiskDetails(BaseSocketScreen, main.DiskDetails):
         self.disk_service = get_details(self.screen_command)
 
 
+class SocketNetworkDetails(BaseSocketScreen, main.NetworkDetails):
+    screen_command = Screens.NETWORK
+
+    def __init__(self):
+        super().__init__(
+            network_service=get_details(self.screen_command),
+            scanner_service=get_details(Screens.SCANNER, None),
+        )
+
+    def get_map_network(self, internal_ip):
+        return get_details(Screens.SCANNER, internal_ip).map_network
+
+    def get_details(self):
+        self.network_service = get_details(self.screen_command)
+
+
 class SocketWatcher(main.Watcher):
     def __init__(self, screens=None, summary=None):
         screens = (
             SocketCPUDetails(),
             SocketMemoryDetails(),
             SocketDiskDetails(),
+            SocketNetworkDetails(),
         )
 
         super().__init__(screens, summary)

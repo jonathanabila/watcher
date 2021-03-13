@@ -11,6 +11,7 @@ class Screens(EnumChoices):
     MEMORY = "MEMORY"
     DISK = "DISK"
     NETWORK = "NETWORK"
+    SCANNER = "SCANNER"
     PROCESS = "PROCESS"
     DATA_USAGE = "DATA_USAGE"
     SYSTEM = "SYSTEM"

@@ -7,9 +7,9 @@ BUFFER_SIZE = 1014
 s = socket.socket(type=socket.SOCK_DGRAM)
 
 
-def get_details(screen):
+def get_details(screen, *args):
     print("asking...")
-    commands = [(screen, None)]
+    commands = [(screen, args)]
     s.sendto(encode_commands(commands), ("0.0.0.0", 9991))
 
     raw_data, addr = s.recvfrom(BUFFER_SIZE)

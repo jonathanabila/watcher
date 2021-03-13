@@ -28,3 +28,16 @@ class DiskModel:
     total: str
     available: str
     pretty_usage: str
+
+
+@dataclass
+class NetworkModel:
+    ip: str
+    interface_name: str
+    gateway: str
+    sub_mask: str
+
+
+@dataclass
+class ScannerModel:
+    map_network: List
