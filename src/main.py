@@ -326,7 +326,7 @@ class SystemDetails(BaseScreen):
 
     def draw_details(self, details=None, *args, **kwargs):
         Text().draw("Output on the terminal.", (MARGIN_X, 40))
-        dirs = self.system_service.dirs()
+        dirs = self.system_service.dirs
         self.table_service.draw(dirs)
 
     def draw_usage(self, usage=None, y_start=None, title=None):

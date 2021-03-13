@@ -9,6 +9,7 @@ from models import (
     NetworkModel,
     ProcessModel,
     ScannerModel,
+    SystemModel,
 )
 from scanner import Scanner
 from services import (
@@ -18,6 +19,7 @@ from services import (
     MemoryService,
     NetworkService,
     ProcessService,
+    SystemService,
 )
 
 
@@ -93,6 +95,11 @@ class DataUsageStrategy(BaseServiceStrategy):
     model = DataUsageModel
 
 
+class SystemStrategy(BaseServiceStrategy):
+    service = SystemService
+    model = SystemModel
+
+
 class CommandsFactory:
     @staticmethod
     def build(commands):
@@ -111,3 +118,5 @@ class CommandsFactory:
                 yield ProcessStrategy()
             if command == Screens.DATA_USAGE:
                 yield DataUsageStrategy()
+            if command == Screens.SYSTEM:
+                yield SystemStrategy()

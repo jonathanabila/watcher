@@ -310,6 +310,7 @@ class SystemService:
         # time.sleep(10)
         self.s.run()
 
+    @property
     def dirs(self):
         if not self.dirs_folder:
             self._dirs()

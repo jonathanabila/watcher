@@ -60,3 +60,8 @@ class DataUsageModel:
     errin: str
     errout: str
     pids_connections: List
+
+
+@dataclass
+class SystemModel:
+    dirs: List
