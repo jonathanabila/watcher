@@ -69,7 +69,7 @@ def clean_terminal():
 
 def prettify(value):
     """
-    bytes to mb
+    bytes to gb
     """
     return round(value / (1024 * 1024 * 1024), 2)
 
