@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from constants import Screens
-from models import CPUModel
-from services import CPUService
+from models import CPUModel, MemoryModel
+from services import CPUService, MemoryService
 
 
 class BaseServiceStrategy(ABC):
@@ -31,9 +31,16 @@ class CPUStrategy(BaseServiceStrategy):
     model = CPUModel
 
 
+class MemoryStrategy(BaseServiceStrategy):
+    service = MemoryService
+    model = MemoryModel
+
+
 class CommandsFactory:
     @staticmethod
     def build(commands):
         for command, args in commands:
             if command == Screens.CPU:
                 yield CPUStrategy()
+            if command == Screens.MEMORY:
+                yield MemoryStrategy()

@@ -12,3 +12,11 @@ class CPUModel:
     logical_count: str
     max_frequency: str
     current_frequency: str
+
+
+@dataclass
+class MemoryModel:
+    usage: str
+    total: str
+    available: str
+    usage: str
