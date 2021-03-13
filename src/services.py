@@ -150,7 +150,8 @@ class DataUsageService:
     def errout(self):
         return self._net.errout
 
-    def get_pids_connections(self):
+    @property
+    def pids_connections(self):
         header = [
             "pid",
             "type",
@@ -184,7 +185,7 @@ class DataUsageService:
                     ]
                 )
 
-        return [header] + pid_connections
+        return [header] + pid_connections[:10]
 
 
 class NetworkService:

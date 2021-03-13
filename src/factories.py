@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from constants import Screens
 from models import (
     CPUModel,
+    DataUsageModel,
     DiskModel,
     MemoryModel,
     NetworkModel,
@@ -12,6 +13,7 @@ from models import (
 from scanner import Scanner
 from services import (
     CPUService,
+    DataUsageService,
     DiskService,
     MemoryService,
     NetworkService,
@@ -41,6 +43,8 @@ class BaseServiceStrategy(ABC):
 
 
 class MethodServiceStrategy(BaseServiceStrategy, ABC):
+    args = None
+
     def execute(self):
         result = {}
         service = self.service
@@ -84,6 +88,11 @@ class ProcessStrategy(BaseServiceStrategy):
     model = ProcessModel
 
 
+class DataUsageStrategy(BaseServiceStrategy):
+    service = DataUsageService
+    model = DataUsageModel
+
+
 class CommandsFactory:
     @staticmethod
     def build(commands):
@@ -100,3 +109,5 @@ class CommandsFactory:
                 yield ScannerStrategy(args)
             if command == Screens.PROCESS:
                 yield ProcessStrategy()
+            if command == Screens.DATA_USAGE:
+                yield DataUsageStrategy()

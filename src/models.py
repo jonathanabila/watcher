@@ -46,3 +46,17 @@ class ScannerModel:
 @dataclass
 class ProcessModel:
     pids: List
+
+
+@dataclass
+class DataUsageModel:
+    interface_name: str
+    bytes_sent: str
+    bytes_recv: str
+    packets_sent: str
+    packets_recv: str
+    dropin: str
+    dropout: str
+    errin: str
+    errout: str
+    pids_connections: List

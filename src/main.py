@@ -260,7 +260,7 @@ class DataUsageDetails(BaseScreen):
         ]
         super().draw_details(details)
 
-        pids_connections = self.dt_service.get_pids_connections()
+        pids_connections = self.dt_service.pids_connections
         self.table_service.draw(pids_connections)
 
 
