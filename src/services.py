@@ -237,19 +237,21 @@ class DiskService:
     def __init__(self):
         self.info = psutil.disk_usage(".")
 
-    @staticmethod
-    def _prettify(value):
-        return round(value / (1024 * 1024 * 1024), 2)
+    @property
+    def total(self):
+        return prettify(self.info.total)
 
-    def total(self, pretty=False):
-        return self.info.total if not pretty else self._prettify(self.info.total)
+    @property
+    def available(self):
+        return prettify(self.info.free)
 
-    def available(self, pretty=False):
-        return self.info.free if not pretty else self._prettify(self.info.free)
+    @property
+    def usage(self):
+        return self.info.percent / 100
 
-    def usage(self, pretty=False):
-        percentage = self.info.percent / 100
-        return percentage if not pretty else round(percentage * 100, 2)
+    @property
+    def pretty_usage(self):
+        return round(self.usage * 100, 2)
 
 
 class ProcessService:

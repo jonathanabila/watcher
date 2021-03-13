@@ -218,16 +218,16 @@ class DiskDetails(BaseScreen):
         super().__init__()
 
     def draw_usage(self, usage=None, position=None, height=None):
-        usage = self.disk_service.usage()
+        usage = self.disk_service.usage
 
         y_start = 80 if not position else position
         super().draw_usage(usage, y_start)
 
     def draw_details(self, details=None, *args, **kwargs):
         details = [
-            ("Total", self.disk_service.total(pretty=True), "Gb"),
-            ("Available", self.disk_service.available(pretty=True), "Gb"),
-            ("Usage", self.disk_service.usage(pretty=True), "%"),
+            ("Total", self.disk_service.total, "Gb"),
+            ("Available", self.disk_service.available, "Gb"),
+            ("Usage", self.disk_service.pretty_usage, "%"),
         ]
         super().draw_details(details)
 
