@@ -15,3 +15,5 @@ class Screens(EnumChoices):
     PROCESS = "PROCESS"
     DATA_USAGE = "DATA_USAGE"
     SYSTEM = "SYSTEM"
+
+    SUMMARY = "SUMMARY"

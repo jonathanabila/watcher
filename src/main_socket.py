@@ -96,6 +96,24 @@ class SocketSystemDetails(BaseSocketScreen, main.SystemDetails):
         self.system_service = get_details(self.screen_command)
 
 
+class SocketSummary(main.Summary):
+    screen_command = Screens.SUMMARY
+
+    def __init__(self):
+        super().__init__(
+            disk_details=SocketDiskDetails(),
+            cpu_details=SocketCPUDetails(),
+            memory_details=SocketMemoryDetails(),
+        )
+
+    def draw(self, *args, **kwargs):
+        self.disk_details = SocketDiskDetails()
+        self.cpu_details = SocketCPUDetails()
+        self.memory_details = SocketMemoryDetails()
+
+        super().draw()
+
+
 class SocketWatcher(main.Watcher):
     def __init__(self, screens=None, summary=None):
         screens = (
@@ -107,6 +125,8 @@ class SocketWatcher(main.Watcher):
             SocketDataUsageDetails(),
             SocketSystemDetails(),
         )
+
+        summary = (SocketSummary(),)
 
         super().__init__(screens, summary)
 
