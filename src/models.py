@@ -20,3 +20,11 @@ class MemoryModel:
     total: str
     available: str
     usage: str
+
+
+@dataclass
+class DiskModel:
+    usage: str
+    total: str
+    available: str
+    usage: str

@@ -40,11 +40,22 @@ class SocketMemoryDetails(BaseSocketScreen, main.MemoryDetails):
         self.memory_service = get_details(self.screen_command)
 
 
+class SocketDiskDetails(BaseSocketScreen, main.DiskDetails):
+    screen_command = Screens.DISK
+
+    def __init__(self):
+        super().__init__(disk_service=get_details(self.screen_command))
+
+    def get_details(self):
+        self.disk_service = get_details(self.screen_command)
+
+
 class SocketWatcher(main.Watcher):
     def __init__(self, screens=None, summary=None):
         screens = (
             SocketCPUDetails(),
             SocketMemoryDetails(),
+            SocketDiskDetails(),
         )
 
         super().__init__(screens, summary)
