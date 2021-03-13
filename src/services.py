@@ -2,6 +2,7 @@ import os
 import sched
 import socket
 import time
+from operator import itemgetter
 
 import cpuinfo
 import netifaces
@@ -268,8 +269,9 @@ class ProcessService:
                 continue
         return pids
 
+    @property
     def pids(self):
-        header = ["pid", "threads", "name", "memory", "cpu"]
+        header = ["pid", "threads", "name", "memory(%)", "cpu(%)"]
 
         raw_pids = self.get_pids()
 
@@ -285,7 +287,7 @@ class ProcessService:
                 ]
             )
 
-        return [header] + pids
+        return [header] + sorted(pids, key=itemgetter(3), reverse=True)[:10]
 
 
 class SystemService:

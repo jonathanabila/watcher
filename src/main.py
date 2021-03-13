@@ -309,7 +309,7 @@ class ProcessDetails(BaseScreen):
 
     def draw_details(self, details=None, *args, **kwargs):
         Text().draw("Output on the terminal.", (MARGIN_X, 40))
-        pids = self.process_service.pids()
+        pids = self.process_service.pids
         self.table_service.draw(pids)
 
     def draw_usage(self, usage=None, y_start=None, title=None):

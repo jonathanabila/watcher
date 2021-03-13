@@ -41,3 +41,8 @@ class NetworkModel:
 @dataclass
 class ScannerModel:
     map_network: List
+
+
+@dataclass
+class ProcessModel:
+    pids: List

@@ -1,9 +1,22 @@
 from abc import ABC, abstractmethod
 
 from constants import Screens
-from models import CPUModel, DiskModel, MemoryModel, NetworkModel, ScannerModel
+from models import (
+    CPUModel,
+    DiskModel,
+    MemoryModel,
+    NetworkModel,
+    ProcessModel,
+    ScannerModel,
+)
 from scanner import Scanner
-from services import CPUService, DiskService, MemoryService, NetworkService
+from services import (
+    CPUService,
+    DiskService,
+    MemoryService,
+    NetworkService,
+    ProcessService,
+)
 
 
 class BaseServiceStrategy(ABC):
@@ -66,6 +79,11 @@ class ScannerStrategy(MethodServiceStrategy):
         self.args = base_host[0]
 
 
+class ProcessStrategy(BaseServiceStrategy):
+    service = ProcessService
+    model = ProcessModel
+
+
 class CommandsFactory:
     @staticmethod
     def build(commands):
@@ -80,3 +98,5 @@ class CommandsFactory:
                 yield NetworkStrategy()
             if command == Screens.SCANNER:
                 yield ScannerStrategy(args)
+            if command == Screens.PROCESS:
+                yield ProcessStrategy()

@@ -66,6 +66,16 @@ class SocketNetworkDetails(BaseSocketScreen, main.NetworkDetails):
         self.network_service = get_details(self.screen_command)
 
 
+class SocketProcessDetails(BaseSocketScreen, main.ProcessDetails):
+    screen_command = Screens.PROCESS
+
+    def __init__(self):
+        super().__init__(process_service=get_details(self.screen_command))
+
+    def get_details(self):
+        self.process_service = get_details(self.screen_command)
+
+
 class SocketWatcher(main.Watcher):
     def __init__(self, screens=None, summary=None):
         screens = (
@@ -73,6 +83,7 @@ class SocketWatcher(main.Watcher):
             SocketMemoryDetails(),
             SocketDiskDetails(),
             SocketNetworkDetails(),
+            SocketProcessDetails(),
         )
 
         super().__init__(screens, summary)
