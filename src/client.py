@@ -8,8 +8,9 @@ s = socket.socket(type=socket.SOCK_DGRAM)
 
 
 def get_details(screen, *args):
-    print("asking...")
     commands = [(screen, args)]
+    print(f"asking with: {(screen, args)}")
+
     s.sendto(encode_commands(commands), ("0.0.0.0", 9991))
 
     raw_data, addr = s.recvfrom(BUFFER_SIZE)
